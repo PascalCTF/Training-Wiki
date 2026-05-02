@@ -1,4 +1,4 @@
-import type {ReactNode} from 'react';
+import type { ReactNode } from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
@@ -69,7 +69,7 @@ const CategoryList: CategoryItem[] = [
 ];
 
 function HomepageHeader() {
-  const {siteConfig} = useDocusaurusContext();
+  const { siteConfig } = useDocusaurusContext();
   return (
     <header className={clsx('hero hero--primary', styles.heroBanner)}>
       <div className="container">
@@ -94,9 +94,9 @@ function HomepageCategories() {
           Pick a track and start from the intro.
         </p>
 
-        <div className="row">
+        <div className={styles.categoryGrid}>
           {CategoryList.map((category) => (
-            <div key={category.to} className="col col--6 margin-bottom--lg">
+            <div key={category.to} className={styles.categoryCardWrapper}>
               <div className={clsx('card', styles.categoryCard)}>
                 <div className="card__body">
                   <Heading as="h3" className={styles.categoryTitle}>
@@ -108,7 +108,7 @@ function HomepageCategories() {
                 </div>
                 <div className="card__footer">
                   <Link
-                    className="button button--secondary button--block"
+                    className={clsx("button button--secondary button--block", styles.categoryButton)}
                     to={category.to}>
                     Open intro
                   </Link>
@@ -123,7 +123,7 @@ function HomepageCategories() {
 }
 
 export default function Home(): ReactNode {
-  const {siteConfig} = useDocusaurusContext();
+  const { siteConfig } = useDocusaurusContext();
   return (
     <Layout
       title={`Hello from ${siteConfig.title}`}
