@@ -1,5 +1,8 @@
 name: CI + Deploy (SSH)
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches:
@@ -47,14 +50,10 @@ jobs:
           port: 6007
           username: root
           password: ${{ secrets.ROOT_PASSWORD }}
-          source: |
-            .
-            !.git/**
-            !node_modules/**
-            !build/**
-            !.docusaurus/**
+          source: "package.json,package-lock.json,docusaurus.config.ts,sidebars.ts,tsconfig.json,docs,src,static"
           target: /var/www/html
           overwrite: true
+          rm: true
 
       - name: Build on server (npm)
         uses: appleboy/ssh-action@v1.2.0
