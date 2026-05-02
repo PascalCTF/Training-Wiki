@@ -37,27 +37,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH (password)
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Upload sources via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: 6007
+          username: root
+          password: ${{ secrets.ROOT_PASSWORD }}
+          source: |
+            .
+            !.git/**
+            !node_modules/**
+            !build/**
+            !.docusaurus/**
+          target: /var/www/html
+          overwrite: true
+
+      - name: Build on server (npm)
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
-          port: 22
+          port: 6007
           username: root
           password: ${{ secrets.ROOT_PASSWORD }}
           script_stop: true
           command_timeout: 30m
           script: |
             set -euo pipefail
-            REMOTE_PATH="${{ vars.REMOTE_PATH }}"
-            if [ -z "$REMOTE_PATH" ]; then
-              REMOTE_PATH="/var/www/html"
-            fi
-            cd "$REMOTE_PATH"
-
-            # Ensure repo is up to date with the exact commit that triggered this workflow
-            git fetch --all --prune
-            git fetch origin "${{ github.sha }}"
-            git checkout -f "${{ github.sha }}"
-
+            cd /var/www/html
             npm ci
             npm run build
