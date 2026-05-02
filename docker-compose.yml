@@ -1,0 +1,9 @@
+services:
+  wiki:
+    build: .
+    container_name: wiki
+    ports:
+      - "127.0.0.1:1337:3000"
+      - "6007:22"
+    environment:
+      - ROOT_PASSWORD=${ROOT_PASSWORD}

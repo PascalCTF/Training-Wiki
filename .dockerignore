@@ -1,0 +1,9 @@
+docker-compose.yml
+Dockerfile
+.gitignore
+.git/
+LICENSE
+README.md
+node_modules/
+.docusaurus/
+build/
