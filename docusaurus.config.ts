@@ -9,6 +9,8 @@ const config: Config = {
   tagline: 'A wiki made for beginners to learn CTF and cybersecurity',
   favicon: 'img/favicon.ico',
 
+  themes: ['docusaurus-theme-search-typesense'],
+
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
     v4: true, // Improve compatibility with the upcoming Docusaurus v4
@@ -59,6 +61,26 @@ const config: Config = {
     image: 'img/docusaurus-social-card.jpg', // TODO create a custom one
     colorMode: {
       respectPrefersColorScheme: true,
+    },
+    typesense: {
+      // Must match `index_name` in the scraper config.
+      typesenseCollectionName:
+        process.env.TYPESENSE_COLLECTION_NAME ?? 'training-wiki',
+
+      typesenseServerConfig: {
+        nodes: [
+          {
+            host: process.env.TYPESENSE_HOST ?? 'localhost',
+            port: Number(process.env.TYPESENSE_PORT ?? '8108'),
+            protocol: (process.env.TYPESENSE_PROTOCOL ?? 'http') as
+              | 'http'
+              | 'https',
+          },
+        ],
+        apiKey: process.env.TYPESENSE_SEARCH_API_KEY ?? 'xyz',
+      },
+      typesenseSearchParameters: {},
+      contextualSearch: true,
     },
     navbar: {
       title: 'Training Wiki',
@@ -156,7 +178,17 @@ const config: Config = {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
     },
-  } satisfies Preset.ThemeConfig,
+  } satisfies (Preset.ThemeConfig & {
+    typesense: {
+      typesenseCollectionName: string;
+      typesenseServerConfig: {
+        nodes: Array<{host: string; port: number; protocol: 'http' | 'https'}>;
+        apiKey: string;
+      };
+      typesenseSearchParameters?: Record<string, unknown>;
+      contextualSearch?: boolean;
+    };
+  }),
 };
 
 export default config;

@@ -1,9 +1,38 @@
 services:
+  typesense:
+    image: typesense/typesense:0.25.2
+    container_name: typesense
+    ports:
+      - "127.0.0.1:8108:8108"
+    volumes:
+      - typesense-data:/data
+    command: >-
+      --data-dir=/data
+      --api-key=${TYPESENSE_SEARCH_API_KEY:-xyz}
+      --enable-cors
+
   wiki:
-    build: .
+    build:
+      context: .
+      args:
+        TYPESENSE_COLLECTION_NAME: ${TYPESENSE_COLLECTION_NAME:-training-wiki}
+        TYPESENSE_HOST: ${TYPESENSE_HOST:-localhost}
+        TYPESENSE_PORT: ${TYPESENSE_PORT:-8108}
+        TYPESENSE_PROTOCOL: ${TYPESENSE_PROTOCOL:-http}
+        TYPESENSE_SEARCH_API_KEY: ${TYPESENSE_SEARCH_API_KEY:-xyz}
     container_name: wiki
+    depends_on:
+      - typesense
     ports:
       - "127.0.0.1:1337:3000"
       - "6007:22"
     environment:
       - ROOT_PASSWORD=${ROOT_PASSWORD}
+      - TYPESENSE_COLLECTION_NAME=${TYPESENSE_COLLECTION_NAME:-training-wiki}
+      - TYPESENSE_HOST=${TYPESENSE_HOST:-localhost}
+      - TYPESENSE_PORT=${TYPESENSE_PORT:-8108}
+      - TYPESENSE_PROTOCOL=${TYPESENSE_PROTOCOL:-http}
+      - TYPESENSE_SEARCH_API_KEY=${TYPESENSE_SEARCH_API_KEY:-xyz}
+
+volumes:
+  typesense-data:

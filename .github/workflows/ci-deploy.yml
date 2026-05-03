@@ -1,4 +1,4 @@
-name: CI + Deploy (SSH)
+name: Deploy to server
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -7,13 +7,41 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - Dockerfile
+      - docker-compose.yml
+      - docker-entrypoint.sh
+      - .dockerignore
 
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      docker_changed: ${{ steps.filter.outputs.docker }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Paths filter
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            docker:
+              - 'Dockerfile'
+              - 'docker-compose.yml'
+              - 'docker-entrypoint.sh'
+              - '.dockerignore'
+
   build:
+    needs: changes
+    if: ${{ needs.changes.outputs.docker_changed != 'true' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -37,6 +65,7 @@ jobs:
 
   deploy:
     needs: build
+    if: ${{ needs.build.result == 'success' }}
     runs-on: ubuntu-latest
 
     steps:

@@ -1,41 +1,28 @@
-# Website
+# Training Wiki
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+<p align="center">
+	<img src="static/img/logo.svg" alt="Training Wiki logo" width="160" />
+</p>
 
-## Installation
+Wiki/knowledge base built with [Docusaurus](https://docusaurus.io/) with search powered by Typesense DocSearch.
 
-```bash
-yarn
-```
+Prerequisites: Node.js >= 20, npm. For deployment: Docker + Docker Compose.
 
-## Local Development
-
-```bash
-yarn start
-```
-
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
-
-## Build
+## Local setup
 
 ```bash
-yarn build
+npm ci
+npm run start
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+## Server setup
 
-## Deployment
+1) Create the `.env` file starting from [.env.example](.env.example) and set the variables (especially `ROOT_PASSWORD`, `TYPESENSE_ADMIN_API_KEY`, `TYPESENSE_SEARCH_API_KEY`).
 
-Using SSH:
+2) Start the stack:
 
 ```bash
-USE_SSH=true yarn deploy
+docker compose up -d --build
 ```
 
-Not using SSH:
-
-```bash
-GIT_USER=<Your GitHub username> yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+Note: `TYPESENSE_*` variables are read **at build time**; if you change them, you must rebuild (`--build`).
