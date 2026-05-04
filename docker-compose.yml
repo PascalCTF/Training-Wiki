@@ -1,5 +1,6 @@
 x-scraper-common: &scraper-common
   image: typesense/docsearch-scraper:latest
+  shm_size: '2gb'
   depends_on:
     - typesense
     - wiki
@@ -27,6 +28,7 @@ services:
 
   typesense-init:
     image: curlimages/curl:8.8.0
+    container_name: typesense-init
     profiles: ["init"]
     depends_on:
       - typesense
@@ -35,12 +37,13 @@ services:
       - TYPESENSE_ADMIN_API_KEY=${TYPESENSE_ADMIN_API_KEY:-xyz}
       - TYPESENSE_SEARCH_API_KEY=${TYPESENSE_SEARCH_API_KEY:-xyz}
       - TYPESENSE_COLLECTION_NAME=${TYPESENSE_COLLECTION_NAME:-training-wiki}
-    command: >-
-      until curl -sf http://typesense:8108/health >/dev/null; do sleep 1; done;
-      curl -sf -X POST http://typesense:8108/keys \
-        -H "X-TYPESENSE-API-KEY: $$TYPESENSE_ADMIN_API_KEY" \
-        -H "Content-Type: application/json" \
-        -d "{\"description\":\"training-wiki search key\",\"actions\":[\"documents:search\"],\"collections\":[\"$$TYPESENSE_COLLECTION_NAME.*\"],\"value\":\"$$TYPESENSE_SEARCH_API_KEY\"}" \
+    command:
+      - >-
+        until curl -sf http://typesense:8108/health >/dev/null; do sleep 1; done;
+        curl -sf -X POST http://typesense:8108/keys
+        -H "X-TYPESENSE-API-KEY: $$TYPESENSE_ADMIN_API_KEY"
+        -H "Content-Type: application/json"
+        -d "{\"description\":\"training-wiki search key\",\"actions\":[\"documents:search\"],\"collections\":[\"$$TYPESENSE_COLLECTION_NAME.*\"],\"value\":\"$$TYPESENSE_SEARCH_API_KEY\"}"
         >/dev/null || true
 
   wiki:
@@ -70,28 +73,31 @@ services:
 
   scraper:
     <<: *scraper-common
+    container_name: scraper
     profiles: ["scraper"]
 
   scraper-watcher:
     <<: *scraper-common
+    container_name: scraper-watcher
     restart: unless-stopped
     volumes:
       - ./docsearch.config.json:/tmp/docsearch/docsearch.config.json:ro
       - scraper-trigger:/trigger
     entrypoint: ["/bin/sh", "-c"]
-    command: >-
-      set -eu;
-      trigger="/trigger/run";
-      echo "[scraper-watcher] waiting for trigger...";
-      while true; do
-        if [ -f "$$trigger" ]; then
-          rm -f "$$trigger";
-          echo "[scraper-watcher] trigger detected, scraping...";
-          pipenv run python -m src.index || echo "[scraper-watcher] scrape failed";
-          echo "[scraper-watcher] done, waiting for next trigger...";
-        fi;
-        sleep 5;
-      done
+    command:
+      - >-
+        set -eu;
+        trigger="/trigger/run";
+        echo "[scraper-watcher] waiting for trigger...";
+        while true; do
+          if [ -f "$$trigger" ]; then
+            rm -f "$$trigger";
+            echo "[scraper-watcher] trigger detected, scraping...";
+            pipenv run python -m src.index || echo "[scraper-watcher] scrape failed";
+            echo "[scraper-watcher] done, waiting for next trigger...";
+          fi;
+          sleep 5;
+        done
 
 volumes:
   typesense-data:
