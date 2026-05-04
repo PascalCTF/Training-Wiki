@@ -6,8 +6,6 @@
 
 Wiki/knowledge base built with [Docusaurus](https://docusaurus.io/) with search powered by Typesense DocSearch.
 
-Prerequisites: Node.js >= 20, npm. For deployment: Docker + Docker Compose.
-
 ## Local setup
 
 ```bash
@@ -25,4 +23,25 @@ npm run start
 docker compose up -d --build
 ```
 
-Note: `TYPESENSE_*` variables are read **at build time**; if you change them, you must rebuild (`--build`).
+3) Create the search-only API key (once):
+
+```bash
+docker compose --profile init run --rm typesense-init
+```
+
+4) Index the docs into Typesense (required for getting results):
+
+```bash
+docker compose --profile scraper run --rm scraper
+```
+
+Optional: keep a watcher running and trigger re-index when needed:
+
+```bash
+docker compose up -d scraper-watcher
+
+# trigger a re-index
+docker compose exec wiki sh -lc 'touch /trigger/run'
+```
+
+Note: `TYPESENSE_*` variables are read **at build time**; if you change them, rebuild (`--build`).

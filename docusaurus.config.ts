@@ -4,12 +4,16 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
+const typesenseEnabled = Boolean(
+  process.env.TYPESENSE_HOST && process.env.TYPESENSE_SEARCH_API_KEY,
+);
+
 const config: Config = {
   title: 'PascalCTF Wiki',
   tagline: 'A wiki made for beginners to learn CTF and cybersecurity',
   favicon: 'img/favicon.ico',
 
-  themes: ['docusaurus-theme-search-typesense'],
+  themes: typesenseEnabled ? ['docusaurus-theme-search-typesense'] : [],
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -62,26 +66,30 @@ const config: Config = {
     colorMode: {
       respectPrefersColorScheme: true,
     },
-    typesense: {
-      // Must match `index_name` in the scraper config.
-      typesenseCollectionName:
-        process.env.TYPESENSE_COLLECTION_NAME ?? 'training-wiki',
+    ...(typesenseEnabled
+      ? {
+          typesense: {
+            // Must match `index_name` in the scraper config.
+            typesenseCollectionName:
+              process.env.TYPESENSE_COLLECTION_NAME ?? 'training-wiki',
 
-      typesenseServerConfig: {
-        nodes: [
-          {
-            host: process.env.TYPESENSE_HOST ?? 'localhost',
-            port: Number(process.env.TYPESENSE_PORT ?? '8108'),
-            protocol: (process.env.TYPESENSE_PROTOCOL ?? 'http') as
-              | 'http'
-              | 'https',
+            typesenseServerConfig: {
+              nodes: [
+                {
+                  host: process.env.TYPESENSE_HOST!,
+                  port: Number(process.env.TYPESENSE_PORT ?? '8108'),
+                  protocol: (process.env.TYPESENSE_PROTOCOL ?? 'http') as
+                    | 'http'
+                    | 'https',
+                },
+              ],
+              apiKey: process.env.TYPESENSE_SEARCH_API_KEY!,
+            },
+            typesenseSearchParameters: {},
+            contextualSearch: true,
           },
-        ],
-        apiKey: process.env.TYPESENSE_SEARCH_API_KEY ?? 'xyz',
-      },
-      typesenseSearchParameters: {},
-      contextualSearch: true,
-    },
+        }
+      : {}),
     navbar: {
       title: 'Training Wiki',
       logo: {
@@ -179,7 +187,7 @@ const config: Config = {
       darkTheme: prismThemes.dracula,
     },
   } satisfies (Preset.ThemeConfig & {
-    typesense: {
+    typesense?: {
       typesenseCollectionName: string;
       typesenseServerConfig: {
         nodes: Array<{host: string; port: number; protocol: 'http' | 'https'}>;

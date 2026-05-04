@@ -12,37 +12,25 @@ on:
       - docker-compose.yml
       - docker-entrypoint.sh
       - .dockerignore
+      - docsearch.config.json
+      - .env.example
+      - README.md
+      - LICENSE
 
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  changes:
-    name: Detect changes
-    runs-on: ubuntu-latest
-    outputs:
-      docker_changed: ${{ steps.filter.outputs.docker }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Paths filter
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            docker:
-              - 'Dockerfile'
-              - 'docker-compose.yml'
-              - 'docker-entrypoint.sh'
-              - '.dockerignore'
-
   build:
-    needs: changes
-    if: ${{ needs.changes.outputs.docker_changed != 'true' }}
     runs-on: ubuntu-latest
+
+    env:
+      TYPESENSE_COLLECTION_NAME: ${{ secrets.TYPESENSE_COLLECTION_NAME }}
+      TYPESENSE_HOST: ${{ secrets.TYPESENSE_HOST }}
+      TYPESENSE_PORT: ${{ secrets.TYPESENSE_PORT }}
+      TYPESENSE_PROTOCOL: ${{ secrets.TYPESENSE_PROTOCOL }}
+      TYPESENSE_SEARCH_API_KEY: ${{ secrets.TYPESENSE_SEARCH_API_KEY }}
 
     steps:
       - name: Checkout
@@ -65,7 +53,6 @@ jobs:
 
   deploy:
     needs: build
-    if: ${{ needs.build.result == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -86,11 +73,18 @@ jobs:
 
       - name: Build on server (npm)
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          TYPESENSE_COLLECTION_NAME: ${{ secrets.TYPESENSE_COLLECTION_NAME }}
+          TYPESENSE_HOST: ${{ secrets.TYPESENSE_HOST }}
+          TYPESENSE_PORT: ${{ secrets.TYPESENSE_PORT }}
+          TYPESENSE_PROTOCOL: ${{ secrets.TYPESENSE_PROTOCOL }}
+          TYPESENSE_SEARCH_API_KEY: ${{ secrets.TYPESENSE_SEARCH_API_KEY }}
         with:
           host: ${{ secrets.SSH_HOST }}
           port: 6007
           username: root
           password: ${{ secrets.ROOT_PASSWORD }}
+          envs: TYPESENSE_COLLECTION_NAME,TYPESENSE_HOST,TYPESENSE_PORT,TYPESENSE_PROTOCOL,TYPESENSE_SEARCH_API_KEY
           script_stop: true
           command_timeout: 30m
           script: |
@@ -98,3 +92,5 @@ jobs:
             cd /var/www/html
             npm ci
             npm run build
+            touch /trigger/run
+            echo "Scraper trigger set — re-index will start within seconds"
