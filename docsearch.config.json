@@ -2,11 +2,11 @@
   "index_name": "training-wiki",
   "start_urls": [
     {
-      "url": "http://wiki:3000/"
+      "url": "https://wiki.pascalctf.it/"
     }
   ],
   "sitemap_urls": [
-    "http://wiki:3000/sitemap.xml"
+    "https://wiki.pascalctf.it/sitemap.xml"
   ],
   "sitemap_alternate_links": true,
   "js_render": true,

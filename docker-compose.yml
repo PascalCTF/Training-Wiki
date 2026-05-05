@@ -1,5 +1,6 @@
 x-scraper-common: &scraper-common
   image: typesense/docsearch-scraper:latest
+  user: root
   shm_size: '2gb'
   depends_on:
     - typesense
