@@ -66,7 +66,7 @@ jobs:
           port: 6007
           username: root
           password: ${{ secrets.ROOT_PASSWORD }}
-          source: "package.json,package-lock.json,docusaurus.config.ts,sidebars.ts,tsconfig.json,docs,src,static"
+          source: "package.json,package-lock.json,docusaurus.config.ts,sidebars.ts,tsconfig.json,docs,src,static,plugins"
           target: /var/www/html
           overwrite: true
           rm: true

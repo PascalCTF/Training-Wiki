@@ -1,0 +1,101 @@
+.heroBanner {
+  padding: 4rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1d15ff 0%, #ff0086 100%);
+  color: #fff;
+}
+
+.contributorsSection {
+  padding: 3rem 0;
+}
+
+.contributorsTitle {
+  text-align: center;
+  margin-bottom: 0.25rem;
+}
+
+.contributorsSubtitle {
+  text-align: center;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.contributorGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.contributorCardWrapper {
+  flex: 0 1 calc(33.333% - 1.25rem);
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+}
+
+.contributorCard {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.contributorCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.75rem;
+  border: 2px solid var(--ifm-color-emphasis-200);
+}
+
+.login {
+  margin-bottom: 0.25rem;
+  word-break: break-word;
+}
+
+.commits {
+  margin: 0;
+  opacity: 0.85;
+}
+
+.contributorButton {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.contributorButton:hover {
+  background-color: var(--ifm-color-primary) !important;
+  border-color: var(--ifm-color-primary) !important;
+  color: #ffffff !important;
+}
+
+.empty {
+  text-align: center;
+  opacity: 0.8;
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 2rem;
+  }
+
+  .contributorCardWrapper {
+    flex: 0 1 calc(50% - 1.25rem);
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .contributorCardWrapper {
+    flex: 1 1 100%;
+  }
+}
